@@ -21,8 +21,20 @@
         env-help.enable = true;
 
         languages = {
+          haskell = {
+            enable = true;
+            package = pkgs.ghc.withPackages (_: [
+              pkgs.haskellPackages.hspec
+              pkgs.haskellPackages.QuickCheck
+            ]);
+          };
           nix.enable = true;
         };
+
+        packages = [
+          pkgs.haskellPackages.hspec
+          pkgs.haskellPackages.QuickCheck
+        ];
 
         pre-commit = {
           default_stages = ["pre-push"];
@@ -44,6 +56,11 @@
             gofmt.enable = true;
             golangci-lint.enable = true;
             govet.enable = true;
+            hlint = {
+              enable = true;
+              entry = "${pkgs.haskellPackages.hlint}/bin/hlint";
+              name = "hlint";
+            };
             markdownlint.enable = true;
             mixed-line-endings.enable = true;
             nil.enable = true;
@@ -72,6 +89,8 @@
             exec = ''
               ${pkgs.gum}/bin/gum spin --show-error --spinner line --title "nix fmt" -- \
                 nix fmt
+              ${pkgs.gum}/bin/gum spin --show-error --spinner line --title "hlint" -- \
+                ${pkgs.haskellPackages.hlint}/bin/hlint .
             '';
           };
         };
