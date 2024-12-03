@@ -1,7 +1,7 @@
 {-# LANGUAGE LambdaCase #-}
 
 import Data.List
-import System.Environment (getArgs)
+import System.Environment (getArgs, withArgs)
 import System.IO (readFile, writeFile)
 import Test.Hspec
 import Test.QuickCheck
@@ -45,7 +45,7 @@ main :: IO ()
 main = do
   args <- getArgs
   case args of
-    [inputFile, outputFile] -> do
+    ["run", inputFile, outputFile] -> do
       memory <- parseInput inputFile
       let instructions = extract memory
           mulInstructions =
@@ -60,16 +60,24 @@ main = do
       print result1
       print result2
       writeFile outputFile (unlines [show result1, show result2])
-    _ -> putStrLn "Usage: runhaskell 03.hs <inputFile> <outputFile>"
+    ["test"] -> withArgs [] test
+    _ -> putStrLn "Valid commands:\n  run <inputFile> <outputFile>\n  test"
 
 -- Unit and property tests
 test :: IO ()
-test = hspec $
-  do
-    describe "extract" $ do
-      it "extracts valid instructions for the example input" $ do
-        extract "xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))" `shouldBe` [Mul 2 4, Mul 5 5, Mul 11 8, Mul 8 5]
-        extract "xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))" `shouldBe` [Mul 2 4, Don't, Mul 5 5, Mul 11 8, Do, Mul 8 5]
+test = hspec $ do
+  describe "extract" $ do
+    it "extracts valid instructions for the example input" $ do
+      extract "xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))" `shouldBe` [Mul 2 4, Mul 5 5, Mul 11 8, Mul 8 5]
+      extract "xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))" `shouldBe` [Mul 2 4, Don't, Mul 5 5, Mul 11 8, Do, Mul 8 5]
 
-      it "returns nothing for a string with zero instructions" $ do
-        extract "" `shouldBe` []
+  it "returns nothing for a string with zero instructions" $ do
+    extract "" `shouldBe` []
+
+  describe "execute" $ do
+    it "calculates the correct result for the example input" $ do
+      execute [Mul 2 4, Mul 5 5, Mul 11 8, Mul 8 5] `shouldBe` 161
+      execute [Mul 2 4, Don't, Mul 5 5, Mul 11 8, Do, Mul 8 5] `shouldBe` 48
+
+    it "returns zero for a list of no instructions" $ do
+      execute [] `shouldBe` 0

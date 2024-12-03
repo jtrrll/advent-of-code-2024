@@ -90,6 +90,28 @@
                 ${pkgs.haskellPackages.hlint}/bin/hlint .
             '';
           };
+          run = {
+            description = "Runs the puzzles for a specific day.";
+            exec = ''
+              if [[ "$#" -ne 1 ]]; then
+                echo "Usage: $(basename "$0") <day>"
+                exit 1
+              fi
+              day="$1"
+              runghc "$DEVENV_ROOT"/src/"$day" run "$DEVENV_ROOT"/puzzles/"$day"_in "$DEVENV_ROOT"/puzzles/"$day"_out
+            '';
+          };
+          unit = {
+            description = "Runs unit tests for a specific day.";
+            exec = ''
+              if [[ "$#" -ne 1 ]]; then
+                echo "Usage: $(basename "$0") <day>"
+                exit 1
+              fi
+              day="$1"
+              runghc "$DEVENV_ROOT"/src/"$day" test
+            '';
+          };
         };
       };
     };
