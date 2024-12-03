@@ -23,18 +23,15 @@
         languages = {
           haskell = {
             enable = true;
-            package = pkgs.ghc.withPackages (_: [
-              pkgs.haskellPackages.hspec
-              pkgs.haskellPackages.QuickCheck
-            ]);
+            package = pkgs.ghc.withPackages (_:
+              with pkgs.haskellPackages; [
+                hspec
+                QuickCheck
+                regex-tdfa
+              ]);
           };
           nix.enable = true;
         };
-
-        packages = [
-          pkgs.haskellPackages.hspec
-          pkgs.haskellPackages.QuickCheck
-        ];
 
         pre-commit = {
           default_stages = ["pre-push"];
