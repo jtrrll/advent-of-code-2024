@@ -1,6 +1,6 @@
 import Data.List (group, sort)
 import Data.Map qualified as Map
-import System.Environment (getArgs)
+import System.Environment (getArgs, withArgs)
 import System.IO (readFile, writeFile)
 import Test.Hspec
 import Test.QuickCheck
@@ -33,7 +33,7 @@ main :: IO ()
 main = do
   args <- getArgs
   case args of
-    [inputFile, outputFile] -> do
+    ["run", inputFile, outputFile] -> do
       parsedLists <- parseInput inputFile
       let l1 = sort (fst parsedLists)
           l2 = sort (snd parsedLists)
@@ -42,38 +42,38 @@ main = do
       print distance
       print similarity
       writeFile outputFile (unlines [show distance, show similarity])
-    _ -> putStrLn "Usage: runhaskell 01.hs <inputFile> <outputFile>"
+    ["test"] -> withArgs [] test
+    _ -> putStrLn "Valid commands:\n  run <inputFile> <outputFile>\n  test"
 
 -- Unit and property tests
 test :: IO ()
-test = hspec $
-  do
-    describe "listDistance" $ do
-      it "calculates the correct distance for the example input" $ do
-        let l1 = [3, 4, 2, 1, 3, 3]
-            l2 = [4, 3, 5, 3, 9, 3]
-        listDistance l1 l2 `shouldBe` 11
+test = hspec $ do
+  describe "listDistance" $ do
+    it "calculates the correct distance for the example input" $ do
+      let l1 = [3, 4, 2, 1, 3, 3]
+          l2 = [4, 3, 5, 3, 9, 3]
+      listDistance l1 l2 `shouldBe` 11
 
-      it "returns 0 for identical lists" $
-        property $
-          \l -> listDistance (l :: [Int]) l == 0
+    it "returns 0 for identical lists" $
+      property $
+        \l -> listDistance (l :: [Int]) l == 0
 
-      it "returns 0 for empty lists" $ do
-        listDistance [] [] `shouldBe` 0
+    it "returns 0 for empty lists" $ do
+      listDistance [] [] `shouldBe` 0
 
-      it "is always non-negative" $
-        property $
-          \l1 l2 -> listDistance (l1 :: [Int]) (l2 :: [Int]) >= 0
+    it "is always non-negative" $
+      property $
+        \l1 l2 -> listDistance (l1 :: [Int]) (l2 :: [Int]) >= 0
 
-      it "is commutative" $
-        property $
-          \l1 l2 -> listDistance (l1 :: [Int]) (l2 :: [Int]) == listDistance l2 l1
+    it "is commutative" $
+      property $
+        \l1 l2 -> listDistance (l1 :: [Int]) (l2 :: [Int]) == listDistance l2 l1
 
-    describe "listSimilarity" $ do
-      it "calculates the correct similarity for the example input" $ do
-        let l1 = [3, 4, 2, 1, 3, 3]
-            l2 = [4, 3, 5, 3, 9, 3]
-        listSimilarity l1 l2 `shouldBe` 31
+  describe "listSimilarity" $ do
+    it "calculates the correct similarity for the example input" $ do
+      let l1 = [3, 4, 2, 1, 3, 3]
+          l2 = [4, 3, 5, 3, 9, 3]
+      listSimilarity l1 l2 `shouldBe` 31
 
-      it "returns 0 for empty lists" $ do
-        listSimilarity [] [] `shouldBe` 0
+    it "returns 0 for empty lists" $ do
+      listSimilarity [] [] `shouldBe` 0
