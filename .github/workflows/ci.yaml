@@ -24,5 +24,15 @@ jobs:
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@main
       - name: Lint Nix code
-        run: nix develop --impure -c nix fmt
+        run: nix develop --impure -c lint
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+      - name: Test code
+        run: nix develop --impure -c unit-all
 ...
