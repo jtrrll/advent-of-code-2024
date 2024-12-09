@@ -28,6 +28,8 @@
                 hspec
                 QuickCheck
                 regex-tdfa
+                stringsearch
+                universe
               ]);
           };
           nix.enable = true;
@@ -84,10 +86,7 @@
           lint = {
             description = "Lints the project.";
             exec = ''
-              ${pkgs.gum}/bin/gum spin --show-error --spinner line --title "nix fmt" -- \
-                nix fmt
-              ${pkgs.gum}/bin/gum spin --show-error --spinner line --title "hlint" -- \
-                ${pkgs.haskellPackages.hlint}/bin/hlint .
+              nix fmt , && ${pkgs.haskellPackages.hlint}/bin/hlint .
             '';
           };
           run = {
@@ -110,6 +109,18 @@
               fi
               day="$1"
               runghc "$DEVENV_ROOT"/src/"$day" test
+            '';
+          };
+          unit-all = {
+            description = "Runs unit tests for a specific day.";
+            exec = ''
+              if [[ "$#" -ne 0 ]]; then
+                echo "Usage: $(basename "$0")"
+                exit 1
+              fi
+              for day in "$DEVENV_ROOT"/src/*.hs; do
+                unit "$(basename "$day" .hs)" || exit 1
+              done
             '';
           };
         };
