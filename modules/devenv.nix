@@ -28,6 +28,7 @@
                 hspec
                 QuickCheck
                 regex-tdfa
+                split
                 stringsearch
                 universe
               ]);
