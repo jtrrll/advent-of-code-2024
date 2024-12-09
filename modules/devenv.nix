@@ -28,6 +28,8 @@
                 hspec
                 QuickCheck
                 regex-tdfa
+                stringsearch
+                universe
               ]);
           };
           nix.enable = true;
